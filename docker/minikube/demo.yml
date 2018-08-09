@@ -1,0 +1,55 @@
+# APP DEPLOYMENT
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: demo
+  name: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: demo-exposed
+  template:
+    metadata:
+      labels:
+        run: demo-exposed
+      containers:
+        #- name: hello-world
+      - image: localhost:5000/demo:0.0.1
+        name: demo # hello-world
+        #resources:
+          #requests:
+            #cpu: 100m
+            #memory: 512Mi
+          #limits:
+            #cpu: 2000m
+            #memory: 512Mi
+        #env:
+          #- name: JAVA_OPTS
+          #  value: {#javaOptions:-Xms256M -Xmx256M -XX:MaxMetaspaceSize=96M#}
+        ports:
+        - containerPort: 8080 # {#helloWorldPort:9090#}
+          protocol: TCP # not specified
+
+
+---
+
+# APP SERVICE
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: demo
+  name: demo
+
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    run: demo-exposed
+  type: NodePort
